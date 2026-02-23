@@ -1,0 +1,30 @@
+<h2>Student List</h2>
+
+<p>
+    Welcome, {{ request.user.username }} |
+    <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+    <a href="{% url 'students:add_student' %}">Add Student</a>
+</p>
+
+<hr>
+
+<ul>
+    {% for student in students %}
+        <li>
+            {{ student.name }} - {{ student.age }}
+
+            <a href="{% url 'students:update_student_list' student.id %}">
+                Edit
+            </a>
+
+            <a href="{% url 'students:delete_student' student.id %}">
+                Delete
+            </a>
+        </li>
+    {% empty %}
+        <li>No students found</li>
+    {% endfor %}
+</ul>
