@@ -7,7 +7,7 @@ from .forms import StudentForm
 
 @login_required
 def student_list(request):
-    students = Student.objects.all()
+    students = Student.objects.filter(user=request.user)
     return render(request, 'students/student_list.html', {'students': students})
 
 def about(request):
@@ -18,7 +18,9 @@ def add_student(request):
     if request.method == "POST":
         form = StudentForm(request.POST)
         if form.is_valid():
-            form.save()
+            student = form.save(commit=False)
+            student.user = request.user
+            student.save()
             return redirect('students:student_list')
     else:
         form = StudentForm()
@@ -26,7 +28,7 @@ def add_student(request):
 
 @login_required
 def update_student(request,id):
-    student = get_object_or_404(Student,id=id)
+    student = get_object_or_404(Student, id=id, user=request.user)
 
     if request.method == "POST":
         form = StudentForm(request.POST,instance=student)
@@ -39,13 +41,13 @@ def update_student(request,id):
 
 @login_required
 def delete_student(request,id):
-    student = get_object_or_404(Student , id=id)
+    student = get_object_or_404(Student, id=id, user=request.user)
     if request.method =="POST":
         student.delete()
         return redirect('students:student_list')
     return render(request, 'students/confirm_delete.html', {'student': student})
 
-def registor(request):
+def register(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
